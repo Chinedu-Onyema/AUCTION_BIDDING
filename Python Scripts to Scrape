@@ -1,0 +1,869 @@
+# DATA EXTRACTION / MINNING / SCRAPING WITH BEAUTIFUL SOUP
+
+# To be begin data extraction i imported the beautiful soup & request library  
+from bs4 import BeautifulSoup
+import requests
+
+# pasted the URL of the webpage i want to extract
+url = 'https://auction.nigeriatradehub.gov.ng/previous_auction.php'
+page = requests.get(url)
+soup = BeautifulSoup(page.text, 'html.parser')
+
+print(soup)
+
+# Scraped the first items from the first nodes on the webpage
+from bs4 import BeautifulSoup
+import requests
+
+# for the URL
+url = 'https://auction.nigeriatradehub.gov.ng/previous_auction.php'
+page = requests.get(url)
+soup = BeautifulSoup(page.text, 'html.parser')
+
+# For the items and reference numbers extraction
+link_tag = soup.find('div', class_='course_tag').find('a', href=True)
+url = link_tag['href']
+reference_number = link_tag.text.strip()
+
+# For the bidding prices extraction
+price_tag = soup.find('div', class_='course_price').find('span')
+price = price_tag.text.strip()
+
+# For the item title extraction
+title_tag = soup.find('h5', class_='card-title')
+car_title = title_tag.text.strip()
+
+# For the item condition and VIN
+details_tag = soup.find('p', class_='card-text')
+details = details_tag.find_all('br')
+
+# -1 for condition and 0 for VIN
+condition = details_tag.text.split('<br/>')[-1].strip()
+vin = details_tag.text.split('<br/>')[0].strip().split()[-1]
+
+
+# Extraction of the transmission, mileage, and fuel type [0] for transmission, [1] for mileage, [2] for fuel type 
+footer_tags = soup.find_all('a', class_='d-inline-block col text-dark')
+transmission = footer_tags[0].find('span').text.strip() if len(footer_tags) > 0 else 'N/A'
+mileage = footer_tags[1].find('span').text.strip() if len(footer_tags) > 1 else 'N/A'
+fuel_type = footer_tags[2].find('span').text.strip() if len(footer_tags) > 2 else 'N/A'
+
+# Output the extracted information
+print(f"URL: {url}")
+print(f"Reference Number: {reference_number}")
+print(f"Price: {price}")
+print(f"Car Title: {car_title}")
+print(f"Condition: {condition}")
+print(f"VIN: {vin}")
+print(f"Transmission: {transmission}")
+print(f"Mileage: {mileage}")
+print(f"Fuel Type: {fuel_type}")
+
+
+# Tried scraping all the items from all the pages on the website but was unsuccessful
+import requests
+from bs4 import BeautifulSoup
+
+# using user defined fuction to extract data from the html pages
+def extract_data_from_html(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    
+    # For the items and reference numbers extraction
+    link_tag = soup.find('div', class_='course_tag').find('a', href=True)
+    url = link_tag['href']
+    reference_number = link_tag.text.strip()
+
+   # For the bidding prices extraction
+    price_tag = soup.find('div', class_='course_price').find('span')
+    price = price_tag.text.strip()
+
+   # For the item title extraction
+    title_tag = soup.find('h5', class_='card-title')
+    car_title = title_tag.text.strip()
+
+   #  For the item condition and VIN
+    details_tag = soup.find('p', class_='card-text')
+    details = details_tag.find_all('br')
+   
+   # -1 for condition and 0 for VIN
+    VIN = details_tag.text.split('<br/>')[0].strip().split()[-1]
+    Condition = details_tag.text.split('<br/>')[-1].strip()
+    
+    # # Extraction of the transmission, mileage, and fuel type [0] for transmission, [1] for mileage, [2] for fuel type 
+    footer_tags = soup.find_all('a', class_='d-inline-block col text-dark')
+    transmission = footer_tags[0].find('span').text.strip() if len(footer_tags) > 0 else 'N/A'
+    mileage = footer_tags[1].find('span').text.strip() if len(footer_tags) > 1 else 'N/A'
+    fuel_type = footer_tags[2].find('span').text.strip() if len(footer_tags) > 2 else 'N/A'
+
+    
+    return {
+        'URL': url,
+        'Reference Number': reference_number,
+        'Price': price,
+        'Car Title': car_title,
+        'Condition': Condition,
+        'VIN': VIN,
+        'Transmission': transmission,
+        'Mileage': mileage,
+        'Fuel Type': fuel_type
+    }
+
+# user defined fuction to scrap the 38 pages
+def scrape_multiple_pages(urls):
+    data = []
+    for url in urls:
+        try:
+            # Fetch the page
+            response = requests.get(url)
+            response.raise_for_status()  # Check for request errors
+
+            # Extract data from the HTML content
+            page_data = extract_data_from_html(response.text)
+            data.append(page_data)
+
+            print(f"Data extracted from {url}: {page_data}")
+
+        except requests.RequestException as e:
+            print(f"Failed to retrieve data from {url}: {e}")
+
+    return data
+
+# List of URLs to scrape
+urls = [
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=2',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=3',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=4',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=5',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=6',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=7',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=8',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=9',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=10',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=11',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=12',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=13',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=14',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=15',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=16',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=17',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=18',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=19',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=20',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=21',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=22',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=23',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=24',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=25',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=26',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=27',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=28',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=29',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=30',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=31',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=32',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=33',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=34',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=35',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=36',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=37',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=38'
+]
+
+# Start scraping the data
+scraped_data = scrape_multiple_pages(urls)
+
+
+
+
+# imported the pandas library
+import pandas as pd
+
+auction = pd.DataFrame(scraped_data)
+print(auction)
+
+# Edited my code to scrap all the data from the website 
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+def extract_data_from_html(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    data = []
+
+    # Find all the blocks that contain the information in each node from all the 38 pages
+    car_blocks = soup.find_all('div', class_='card')
+
+    for block in car_blocks:
+        # For the items and reference numbers extraction
+        link_tag = block.find('div', class_='course_tag').find('a', href=True)
+        url = link_tag['href']
+        reference_number = link_tag.text.strip()
+
+        # For the bidding prices extraction
+        price_tag = block.find('div', class_='course_price').find('span')
+        price = price_tag.text.strip()
+
+        # For the item title extraction
+        title_tag = block.find('h5', class_='card-title')
+        car_title = title_tag.text.strip()
+
+        #  For the item condition and VIN
+        details_tag = block.find('p', class_='card-text')
+        details = details_tag.get_text(separator=' ').strip().split()
+        
+        #-1 for condition and 0 for VIN
+        vin = details[0] if len(details) > 0 else 'N/A'
+        condition = details[-1] if len(details) > 1 else 'N/A'
+
+         # # Extraction of the transmission, mileage, and fuel type [0] for transmission, [1] for mileage, [2] for fuel type 
+        footer_tags = block.find_all('a', class_='d-inline-block col text-dark')
+        transmission = footer_tags[0].find('span').text.strip() if len(footer_tags) > 0 else 'N/A'
+        mileage = footer_tags[1].find('span').text.strip() if len(footer_tags) > 1 else 'N/A'
+        fuel_type = footer_tags[2].find('span').text.strip() if len(footer_tags) > 2 else 'N/A'
+
+        # after getting the data show the results below
+        data.append({
+            'URL': url,
+            'Reference Number': reference_number,
+            'Price': price,
+            'Car Title': car_title,
+            'Condition': condition,
+            'VIN': vin,
+            'Transmission': transmission,
+            'Mileage': mileage,
+            'Fuel Type': fuel_type
+        })
+
+    return data
+
+def scrape_multiple_pages(urls):
+    all_data = []
+    
+    # run a for loop in the urls 
+    for url in urls:
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  # Check for request errors
+
+            page_data = extract_data_from_html(response.text)
+            all_data.extend(page_data)
+
+            print(f"Data extracted from {url}")
+
+        except requests.RequestException as e:
+            print(f"Failed to retrieve data from {url}: {e}")
+
+    return all_data
+
+# List of URLs to scrape
+urls = [
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=2',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=3',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=4',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=5',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=6',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=7',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=8',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=9',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=10',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=11',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=12',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=13',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=14',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=15',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=16',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=17',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=18',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=19',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=20',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=21',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=22',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=23',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=24',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=25',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=26',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=27',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=28',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=29',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=30',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=31',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=32',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=33',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=34',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=35',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=36',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=37',
+    'https://auction.nigeriatradehub.gov.ng/previous_auction.php?page=38'
+    # Add more URLs as needed
+]
+
+# Start the scraping process
+scraped_data = scrape_multiple_pages(urls)
+
+# After scraping, printed the data to the console
+scrapped_data = scrape_multiple_pages(urls)
+
+# Print the extracted data
+for entry in scrapped_data:
+    print(entry)
+
+# finally scraped all the data i needed
+import pandas as pd
+
+bidding = pd.DataFrame(scrapped_data)
+print(bidding)
+
+from IPython.display import display
+
+# Display the DataFrame as an HTML table in Jupyter
+display(bidding)
+
+# save your result as CSV file
+bidding.to_csv('C:\\Users\HP\Desktop\Phyton for everybody with Dr Chuck\\Scrapped_Data\Scrapped_bidding_data.csv')
+print('Table saved as "Scrapped_bidding_data"')
+
+# View my data in a dataframe
+import pandas as pd
+import numpy as np
+
+auction_results = pd.read_csv('C:\\Users\\HP\\Desktop\\Phyton for everybody with Dr Chuck\\Scrapped_Data\\Unclean_Raw_Scrapped_bidding_data.csv')
+auction_results
+
+
+# DATA CLEANING WITH PANDAS AND NUMPY
+
+
+# I cleaned the first row called URL by extracting only bidding items which were either a vehicle or a container
+auction_results['URL']
+
+auction_results['URL'].to_frame()
+
+#split all the rows in the URL column to extract the text we want which in this case is the last text
+auction_results['URL'] = auction_results['URL'].apply(lambda a: a.split('=')[-1])
+
+print(auction_results)
+
+
+auction_results['URL'] = 'Vehicle'
+
+auction_results['URL'].to_frame()
+
+auction_results['URL'] = 'Container'
+auction_results['URL'].to_frame()
+
+
+import pandas as pd
+
+auction_results = pd.read_csv('C:\\Users\\HP\\Desktop\\Phyton for everybody with Dr Chuck\\Scrapped_Data\\Unclean_Raw_Scrapped_bidding_data.csv')
+auction_results['URL'] = auction_results['URL'].apply(lambda a: a.split('=')[-1])
+auction_results
+
+print(auction_results)
+
+from IPython.display import display
+import pandas as pd
+
+auction_results = pd.read_csv('C:\\Users\\HP\\Desktop\\Phyton for everybody with Dr Chuck\\Scrapped_Data\\Unclean_Raw_Scrapped_bidding_data.csv')
+auction_results['URL'] = auction_results['URL'].apply(lambda a: a.split('=')[-1])
+
+display(auction_results)
+
+# Changing the Condition column values whose name will be changed in the future
+# it is vital to know that the Condition column is supposed to be the TIN and vice versa
+# Give the values in Condition Column some meaning
+
+auction_results['Condition'].replace({'Nigeria': 'Cont23456'}, inplace=True)
+
+auction_results
+
+auction_results['Condition'] = 'Cont23456'
+
+auction_results['Condition'].to_frame()
+
+# Changing the TIN column values whose name will be changed in the future
+# it is vital to know that the TIN column is supposed to be the condition and vice versa
+
+auction_results['VIN'].replace({'Used': 'Used_Vehicle', 'Accidented': 'Used_Vehicle', '0KG': 'Used_Items_In_Container', 
+                                  '1,020KG': 'Used_items_In_Container', '19,958KG': 'Used_Items_In_Container'}, inplace=True)
+
+auction_results
+
+auction_results['VIN'].to_frame()
+
+auction_results['VIN'] = 'Used_Items_In_Container'
+
+auction_results['VIN'].to_frame()
+
+# checking for isna values in the transmission column
+auction_results['Transmission'].isna().values.any()
+
+auction_results.loc[auction_results['Transmission'].isna()]
+
+# Give the values in the Transmission Column some meaning
+auction_results['Transmission'].replace({'AUTOMATIC': 'Automatic_Vehicle', 'Automatic': 'Automatic_Vehicle', 
+                                         'Manual': 'Manual_Vehicle'}, inplace=True)
+
+auction_results
+
+# Replacing NaN values
+auction_results['Transmission'] = auction_results['Transmission'].fillna('Container_Like').replace('NaN', 'Container_Like')
+
+auction_results
+
+auction_results.loc[auction_results['Transmission'].isna()]
+
+auction_results['Transmission'].to_frame()
+
+auction_results['Transmission'] = 'Manual_Vehicle'
+
+auction_results['Transmission'].to_frame()
+
+auction_results['Transmission'] = 'Container_Like'
+
+auction_results['Transmission'].to_frame()
+
+# checking for isna values in the mileage column
+auction_results['Mileage'].isna().values.any()
+
+auction_results.loc[auction_results['Mileage'].isna()]
+
+# Give the values in the Mileage Column some meaning
+
+auction_results['Mileage'].replace({'0.00KM': 'Kilometers'}, inplace=True)
+
+auction_results
+
+# Replacing NaN values
+auction_results['Mileage'] = auction_results['Mileage'].fillna('None').replace('NaN', 'None')
+
+auction_results
+
+auction_results.loc[auction_results['Mileage'].isna()]
+
+auction_results['Mileage'].to_frame()
+
+auction_results['Mileage'] = 'None'
+
+auction_results['Mileage'].to_frame()
+
+# checking if there are NaN values in the fuel type column
+auction_results.loc[auction_results['Fuel Type'].isna()]
+
+# Give the values in the Fuel Type Column some meaning
+auction_results['Fuel Type'].replace({ 'Petrol': 'Petrol_Vehicle', 'PETROL': 'Petrol_Vehicle', 'NIL': 'Petrol_Vehicle'},
+                                     inplace=True)
+auction_results
+
+# Used indexing starting from 0 to fill blanks at specified rows
+
+auction_results.at[14, 'Fuel Type']= 'Diesel_Vehicle'
+auction_results.at[18, 'Fuel Type']= 'Diesel_Vehicle'
+auction_results.at[20, 'Fuel Type']= 'Diesel_Vehicle'
+auction_results.at[46, 'Fuel Type']= 'Diesel_Vehicle'
+auction_results.at[55, 'Fuel Type']= 'Diesel_Vehicle'
+auction_results.at[71, 'Fuel Type']= 'Diesel_Vehicle'
+
+
+auction_results
+
+# Replacing NaN values
+auction_results['Fuel Type'] = auction_results['Fuel Type'].fillna('None').replace('NaN', 'None')
+
+auction_results
+
+auction_results.loc[auction_results['Fuel Type'].isna()]
+
+# Giving the values in the fuel type column some meaning
+auction_results['Fuel Type'] = auction_results['Fuel Type'].replace(('Diesel_Vehicle',), 'Diesel_Vehicle', inplace=True)
+
+auction_results
+
+auction_results['Fuel Type'] = 'None'
+
+auction_results['Fuel Type'].to_frame()
+
+auction_results['Fuel Type'] = 'Diesel_Vehicle'
+
+auction_results['Fuel Type'].to_frame()
+
+auction_results['Fuel Type'] = 'Petrol_Vehicle'
+
+auction_results['Fuel Type'].to_frame()
+
+# Change the columnn names to make it corresepond to the column values changes made
+auction_results.rename(columns={'URL':'Bidding_Item', 'Reference Number':'Reference_Number', 
+                            'Price':'Bid_Winning_Price', 'Car Title':'Bidding_Item_Title',
+                            'Condition':'Bid_Item_Identification_Number', 'VIN':'Condition',
+                            'Transmission':'Transmission_Type', 'Fuel Type':'Fuel_Type'}, inplace=True)
+
+auction_results
+
+auction_results.info()
+
+auction_results.dtypes
+
+# checked if the the reference number column have strictly unique rows
+auction_results['Reference_Number'].value_counts()
+
+auction_results['Reference_Number'].unique()
+
+# compare the number of unique values in the reference column to the length of the table
+auction_results['Reference_Number'].nunique() == len(auction_results)
+
+# Made the unnamed column an index
+auction_results.index = auction_results['Unnamed: 0']
+auction_results
+
+# Dropped the unnamed column 
+auction_results = auction_results.drop(['Unnamed: 0'], axis=1)
+auction_results
+
+# reset the entire index
+auction_results.reset_index(drop=True, inplace=True)
+auction_results
+
+# Changing the data types of the neccesary columns 
+auction_results.dtypes
+
+# Was having issues changing the data type of the Bid winning 
+#price therefore i had to replace the naira signs and commas to empty spaces
+auction_results['Bid_Winning_Price'] = auction_results['Bid_Winning_Price'].replace({'₦': '', ',': ''},
+                                       regex=True).astype(float)
+
+auction_results
+
+
+# changed the datatype of this column to a float
+auction_results.dtypes['Bid_Winning_Price']
+
+auction_results.dtypes
+
+auction_results
+
+# Bringing everything together
+import pandas as pd
+import numpy as np
+
+# import the scraped table from a csv file
+auction_results = pd.read_csv('C:\\Users\\HP\\Desktop\\Phyton for everybody with Dr Chuck\\Scrapped_Data\\
+                                Unclean_Raw_Scrapped_bidding_data.csv')
+
+# split the URL column using a delimiter to get the bidding item  
+auction_results['URL'] = auction_results['URL'].apply(lambda a: a.split('=')[-1])
+
+# Give the vaues in the Condition column with VIN column values somes meaning
+auction_results['Condition'].replace({'Nigeria': 'Cont23456'}, inplace=True)
+
+# Give the vaues in the VIN column with Condition column values somes meaning
+auction_results['VIN'].replace({'Used': 'Used_Vehicle', 'Accidented': 'Used_Vehicle', '0KG': 'Used_Items_In_Container', 
+                                  '1,020KG': 'Used_items_In_Container', '19,958KG': 'Used_Items_In_Container'}, inplace=True)
+
+
+
+# Give the values in the Transmission Column some meaning
+auction_results['Transmission'].replace({'AUTOMATIC': 'Automatic_Vehicle', 'Automatic': 'Automatic_Vehicle', 
+                                         'Manual': 'Manual_Vehicle'}, inplace=True)
+
+auction_results['Transmission'] = auction_results['Transmission'].fillna('Container_Like').replace('NaN', 'Container_Like')
+
+
+# Give the values in the Mileage Column some meaning
+auction_results['Mileage'].replace({'0.00KM': 'Kilometers'}, inplace=True)
+auction_results['Mileage'] = auction_results['Mileage'].fillna('None').replace('NaN', 'None')
+
+
+
+# Give the values in the Fuel Type Column some meaning
+auction_results['Fuel Type'].replace({ 'Petrol': 'Petrol_Vehicle', 'PETROL': 'Petrol_Vehicle', 'NIL': 'Petrol_Vehicle'}, 
+                                     inplace=True)
+
+
+# Used indexing starting from 0 replacing values at specified rows
+auction_results.at[14, 'Fuel Type']= 'Diesel_Vehicle'
+auction_results.at[18, 'Fuel Type']= 'Diesel_Vehicle'
+auction_results.at[20, 'Fuel Type']= 'Diesel_Vehicle'
+auction_results.at[46, 'Fuel Type']= 'Diesel_Vehicle'
+auction_results.at[55, 'Fuel Type']= 'Diesel_Vehicle'
+auction_results.at[71, 'Fuel Type']= 'Diesel_Vehicle'
+
+
+# replace NaN with None
+auction_results['Fuel Type'] = auction_results['Fuel Type'].fillna('None').replace('NaN', 'None')
+
+auction_results['Fuel Type'] = auction_results['Fuel Type'].replace("('Diesel_Vehicle',)", 'Diesel_Vehicle')
+
+# Change Column names
+auction_results.rename(columns={'URL':'Bidding_Item', 'Reference Number':'Reference_Number', 
+                            'Price':'Bid_Winning_Price', 'Car Title':'Bidding_Item_Title',
+                            'Condition':'Bid_Item_Identification_Number', 'VIN':'Condition',
+                            'Transmission':'Transmission_Type', 'Fuel Type':'Fuel_Type'}, inplace=True)
+
+# set the unnamed column as an index
+auction_results.index = auction_results['Unnamed: 0']
+
+# drop the unnamed column
+auction_results = auction_results.drop(['Unnamed: 0'], axis=1)
+
+# drop the unnamed column as an index and create a new index
+auction_results.reset_index(drop=True, inplace=True)
+
+# Was having issues changing the data type of the Bid winning 
+# price therefore i had to replace the naira signs and commas to empty spaces
+auction_results['Bid_Winning_Price'] = auction_results['Bid_Winning_Price'].replace({'₦': '', ',': ''},
+                                       regex=True).astype(float)
+
+
+
+auction_results
+
+# saving my table to a csv file in my desktop
+auction_results.to_csv(
+    'C:\\Users\\HP\\Desktop\\Phyton for everybody with Dr Chuck\\Scrapped_Data\\Cleaned_Scrapped_bidding_data.csv', index=False)
+print('Table saved')
+
+
+
+# VISUALIZING WITH MATPLOTLIB
+
+# import the neccessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# import the scraped table from a csv file in my laptop
+auction_visual = pd.read_csv('C:\\Users\\HP\\Desktop\\Phyton for everybody with Dr Chuck\\Scrapped_Data\\Cleaned_Scrapped_bidding_data.csv')
+print(auction_visual)
+
+# import the neccessary libraries
+from IPython.display import display
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# import the scraped table from a csv file and put it in a table
+auction_visual = pd.read_csv('C:\\Users\\HP\\Desktop\\Phyton for everybody with Dr Chuck\\Scrapped_Data\\Cleaned_Scrapped_bidding_data.csv')
+display(auction_visual)
+
+
+# the total amount made in naira by the nigerian customs since the start of the auction 
+auction_visual['Bid_Winning_Price'].sum()
+
+# Highest amount paid for a bid is 29 million naira
+auction_visual['Bid_Winning_Price'].max()
+
+# Highest amount paid for an item
+auction_visual.groupby('Bidding_Item')['Bid_Winning_Price'].max()
+
+# Lowest amount paid for a bid is 3 hundred thousand naira
+auction_visual['Bid_Winning_Price'].min()
+
+# Lowest amount paid for an item
+auction_visual.groupby('Bidding_Item')['Bid_Winning_Price'].min()
+
+# IT SHOWS THAT THE NIGERIAN CUSTOMS MADE OVER THREE HUNDRED MILLION NAIRA FROM THE AUCTION OF CONTAINERS
+# AND OVER A BILLION IN THE AUCTION OF USED VEHICLES
+
+# Showing the price comparision by bidding items
+# grouping all the items in the bidding item column by the bid winning price 
+grouped_items = auction_visual.groupby('Bidding_Item')['Bid_Winning_Price'].sum().reset_index()
+
+# Plotting the bar chart by specifying it size
+plt.figure(figsize=(8, 6))
+
+# Plotting the bars with different colors and labels
+bars = plt.bar(grouped_items['Bidding_Item'], grouped_items['Bid_Winning_Price'])
+bars[0].set_color('red')
+font1 = {'family':'serif','color':'blue','size':25}
+
+
+# Add labels on top of each bar showing the sum of prices of each bidding item
+for bar in bars:
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, yval, int(yval), ha='center', va='bottom')
+
+# Add labels and title to the different axis
+plt.xlabel('Bidding_Item')
+plt.ylabel('Bid_Winning_Price')
+plt.title('Price Comparison by Bidding Item', fontdict = font1)
+
+# Show the plot
+plt.tight_layout()
+plt.show()
+
+# Show the unique counts of each bidding item
+auction_visual['Bidding_Item'].value_counts()
+
+# THE TOTAL VEHICLE AUCTIONED IS AT 1,124 AND CONTAINERS IS AT 81
+
+# Get the count of each bidding item
+bidding_counts = auction_visual['Bidding_Item'].value_counts().reset_index()
+bidding_counts.columns = ['Bidding_Item', 'Count'] # count the different items in the bidding item column
+
+# Plotting the bar chart by specifying it size
+plt.figure(figsize=(8, 6))
+
+# plot a bar chart
+bars = plt.bar(bidding_counts['Bidding_Item'], bidding_counts['Count'])
+bars[1].set_color('red')
+font1 = {'family':'serif','color':'blue','size':25}
+
+# Add labels on top of each bar showing the count of each bidding item
+for bar in bars:
+    yval = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2, yval, int(yval), ha='center', va='bottom')
+
+#  Add labels and title to the different axis
+plt.xlabel('Bidding_Item')
+plt.ylabel('Bid_Winning_Price')
+plt.title('Bidding Items by Counts', fontdict = font1)
+
+# Show the plot
+plt.tight_layout()
+plt.show()
+
+# Show the unique counts of each transmission type
+auction_visual['Transmission_Type'].value_counts()
+
+# WE CAN SEE THAT MOST OF THE VEHICLES IMPORTED INTO NIGERIA ARE AUTOMATIC VEHICLES
+
+
+# Use value_counts to get the counts of each category
+transmission_counts = auction_visual['Transmission_Type'].value_counts()
+
+# Function to format the autopct to show the count instead of a percentage and to get the unique count (absolute value)
+# of each item in the Transmission type column in a pie chart
+def absolute_value(val):
+    t = int(val / 100 * transmission_counts.sum())
+    return f'{t}'
+
+# give your slices colors
+colors = ['skyblue', 'red', 'green']
+# format the headers
+font1 = {'family':'serif','color':'blue','size':25}
+
+# Create the pie chart
+plt.pie(transmission_counts, labels = transmission_counts.index, autopct=absolute_value, colors=colors)
+
+# title
+plt.title('Transmission',  fontdict = font1)
+
+# Show the plot
+plt.show()
+
+# Show the unique counts of each Reference Number
+auction_visual['Reference_Number'].value_counts()
+
+# FROM THE REFERENCE NUMBER COLUMN COUNT, I CAN SEE THAT THE BID IS ACTUALLY A TOUGH AND TRUE ONE
+# ONLY SEVEN REFERENCE NUMBERS HAVE ACTUALLY WON A BID TWICE
+# WITH THE REMAINING REFERENCE NUMBERS HAVING JUST WON JUST ONCE.
+# DUE TO ANNOYMITY, REFERENCE NUMBERS ARE UNIQUE NUMBERS ISSUED TO EACH WINNING BIDDER THE FIRST TIME
+# IF I WIN A BID FOR EXAMPLE, THEN I WILL BE GIVEN A REFERENCE NUMBER.
+# FOR EXAMPLE THE VERY FIRST WINNER OF THE AUCTION WAS GIVEN A REFERENCE NUMBER OF NCS/PTML/OVT/01/24/1
+# ONLY WINNERS HAVE REFERENCE NUMBERS
+
+# Get the count of each bidding item
+reference_counts = auction_visual['Reference_Number'].value_counts()
+
+
+# Create a bar plot
+plt.figure(figsize=(10,6))
+plt.table(cellText = reference_counts.values.reshape(-1,1), rowLabels = reference_counts.index, 
+          colLabels = ['reference_counts'], loc ='center')
+
+plt.axis('off')
+
+# Show the plot with the table
+plt.show()
+
+reference_counts = auction_visual.groupby(['Bidding_Item'])['Reference_Number'].value_counts()
+
+
+# Create a bar plot
+plt.figure(figsize=(10,6))
+plt.table(cellText = reference_counts.values.reshape(-1,1), rowLabels = reference_counts.index, 
+          colLabels = ['reference_counts'], loc ='center')
+
+plt.axis('off')
+
+# Show the plot with the table
+plt.show()
+
+# Show the unique counts of each Reference Number
+# Lesson learned, Do not name a column value 'None' because it is
+# A python function and python cannot identify it
+# But it would not affect the values count of your column
+# but it wont also show it.
+
+# CHANGE THE NONE TO NON_VEHICLE IN THE FUEL TYPE COLUMN TO SEE THE NON_VEHICLE COUNT
+# BEFORE RUNNING THE CODE BELOW TO MAKE A CORRECTION
+
+auction_visual['Fuel_Type'].value_counts()
+
+# WE CAN SEE THAT MOST OF THE VEHICLES THAT ARE BEING WON ARE VEHICLES THAT USE PETROL
+# RATHER THAN DIESEL WHICH CAN BE ATTRIBUTED TO THE CHEAPER COST OF FUEL PURCHASE FOR THE FORMER
+# DIESEL IS VERY EXPENSIVE IN NIGERIA
+
+# Do not name a column value 'None' when using python.
+
+# Use value_counts to get the counts of each category
+Vehicle_Type_Counts = auction_visual['Fuel_Type'].value_counts()
+
+# Function to format the autopct to show the count instead of a percentage and to get the unique count (absolute value)
+# of each item in the Transmission type column in a pie chart
+def absolute_value(val):
+    v = int(val / 100 * Vehicle_Type_Counts.sum())
+    return f'{v}'
+
+# give your slices colors
+colors = ['skyblue', 'green']
+# format the headers
+font1 = {'family':'serif','color':'blue','size':25}
+
+# Create the pie chart
+plt.pie(Vehicle_Type_Counts, labels = Vehicle_Type_Counts.index, autopct=absolute_value, colors=colors)
+
+# title
+plt.title('Petrol Vs Diesel Vehicles',  fontdict = font1)
+
+# Show the plot
+plt.show()
+
+# AFTER MAKIING THE NECESSARY CHANGES IN THE FUEL TYPE COLUMN RUN THE CODES BELOW
+
+# Make the neccesarry changes in the fuel type column before running
+
+# auction_visual['Fuel_Type'].value_counts()
+
+# MAKE THE CHANGES IN THE FUEL TYPE (NONE TO NON_VEHICLE) COLUMN BEFORE RUNNING THIS CODE
+
+
+# WE CAN SEE THAT MOST OF THE VEHICLES THAT ARE BEING WON ARE VEHICLES THAT USE PETROL
+# RATHER THAN DIESEL WHICH CAN BE ATTRIBUTED TO THE CHEAPER COST OF FUEL PURCHASE FOR THE FORMER
+# DIESEL IS VERY EXPENSIVE IN NIGERIA
+
+# Do not name a column value 'None' when using python.
+
+# Use value_counts to get the counts of each category
+# Vehicle_Type_Counts = auction_visual['Fuel_Type'].value_counts()
+
+# Function to format the autopct to show the count instead of a percentage and to get the unique count (absolute value)
+# of each item in the Transmission type column in a pie chart
+# def absolute_value(val):
+ #   v = int(val / 100 * Vehicle_Type_Counts.sum())
+ #   return f'{v}'
+
+# give your slices colors
+#colors = ['skyblue', 'red', 'green']
+# format the headers
+# font1 = {'family':'serif','color':'blue','size':25}
+
+# Create the pie chart
+# plt.pie(Vehicle_Type_Counts, labels = Vehicle_Type_Counts.index, autopct=absolute_value, colors=colors)
+
+# title
+# plt.title('Petrol Vs Diesel Vehicles',  fontdict = font1)
+
+# Show the plot
+# plt.show()
