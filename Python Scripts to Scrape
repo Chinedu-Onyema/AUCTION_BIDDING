@@ -312,6 +312,7 @@ for entry in scrapped_data:
 # finally scraped all the data i needed
 import pandas as pd
 
+
 bidding = pd.DataFrame(scrapped_data)
 print(bidding)
 
